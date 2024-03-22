@@ -1,0 +1,29 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.app {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.numbers {
+  background-color: #1e1e1e;
+  color: #858585;
+  padding: 20px;
+  width: 150px;
+  overflow: auto;
+}
+
+.line-number {
+  /* Adjust the line-height as needed */
+  line-height: 1.5;
+}
+
+.right-side {
+  flex-grow: 1;
+  /* Add more styling as needed */
+}

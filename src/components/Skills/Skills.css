@@ -1,0 +1,43 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.skills {
+  background-color: #1e1e1e;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  height: 100vh;
+  border: 1px solid #282828;
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.skills-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #282828;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.skills-title {
+  color: #8cdcfe;
+  padding-bottom: 40px;
+}
+
+.skills-name {
+  color: #d4d4d4;
+  padding: 5px;
+}

@@ -1,0 +1,27 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.about {
+  background-color: #1e1e1e;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px;
+  border: 1px solid #282828;
+}
+
+.about-title {
+    color: #8cdcfe;
+    padding-bottom: 120px;
+}
+
+.about-description {
+    color: #d4d4d4;
+    padding: 5px;
+    font-size: 20px;
+}
