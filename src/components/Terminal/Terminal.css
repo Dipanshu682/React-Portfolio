@@ -1,9 +1,12 @@
 :root {
-    --bg-color: #0c0c0c;
-    --text-color: #00ff41;
-    --prompt-color: #00ff41;
+    --bg-color: #1c1c1c;
+    /* macOS Terminal "Pro" background */
+    --text-color: #ffffff;
+    /* Clean white text */
+    --prompt-color: #32d74b;
+    /* macOS-style vibrant green */
     --input-color: #ffffff;
-    --terminal-font: 'Courier New', Courier, monospace;
+    --terminal-font: 'SF Mono', Monaco, Menlo, Consolas, 'Courier New', monospace;
 }
 
 .terminal-container {
@@ -21,35 +24,36 @@
 }
 
 .terminal-body {
-    padding: 20px;
+    padding: 25px;
     flex-grow: 1;
     overflow-y: auto;
-    font-size: 1.1rem;
-    line-height: 1.4;
+    font-size: 14px;
+    /* Standard macOS terminal size */
+    line-height: 1.6;
     white-space: pre-wrap;
     z-index: 2;
+    letter-spacing: 0.02em;
 }
 
 .line.input {
-    color: #888;
+    color: #a0a0a0;
     margin-top: 5px;
 }
 
 .line.output {
-    margin-bottom: 5px;
+    margin-bottom: 8px;
 }
 
 .input-line {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    /* Important for mobile */
 }
 
 .prompt {
     color: var(--prompt-color);
-    margin-right: 10px;
-    font-weight: bold;
+    margin-right: 8px;
+    font-weight: 500;
 }
 
 .input-line input {
@@ -57,26 +61,24 @@
     border: none;
     color: var(--input-color);
     font-family: var(--terminal-font);
-    font-size: 1.1rem;
+    font-size: 14px;
     flex-grow: 1;
     outline: none;
-    caret-color: var(--text-color);
+    caret-color: #7d7d7d;
+    /* Standard block/line cursor color */
     min-width: 100px;
 }
 
-/* CRT Overlay Effect */
+/* Subtle Glassmorphism for full screen */
 .terminal-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
-        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-    background-size: 100% 3px, 3px 100%;
+    background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
     pointer-events: none;
     z-index: 10;
-    opacity: 0.6;
 }
 
 /* Hide Scrollbar */
@@ -91,11 +93,11 @@
 
 @media (max-width: 600px) {
     .terminal-body {
-        padding: 10px;
-        font-size: 0.85rem;
+        padding: 15px;
+        font-size: 12px;
     }
 
     .input-line input {
-        font-size: 0.85rem;
+        font-size: 12px;
     }
 }

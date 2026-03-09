@@ -5,8 +5,8 @@ import { handleCommand } from "./commands";
 const Terminal = () => {
     const [input, setInput] = useState("");
     const [history, setHistory] = useState([
-        { type: "output", content: "Last login: " + new Date().toUTCString() + " on pts/0" },
-        { type: "output", content: "System: Portfolio Linux v1.0.4-LTS (production)" },
+        { type: "output", content: "Last login: " + new Date().toUTCString() + " on ttys001" },
+        { type: "output", content: "System: Portfolio Linux 1.0.4 - Zsh on macOS style shell" },
         { type: "output", content: 'Type "help" for a list of available commands.' },
     ]);
     const [currentPath, setCurrentPath] = useState("/home/dipanshu");
@@ -28,7 +28,7 @@ const Terminal = () => {
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
             const trimmedInput = input.trim();
-            const newHistory = [...history, { type: "input", content: `dipanshu@portfolio-prod-srv-01:${currentPath.replace("/home/dipanshu", "~")}$ ${input}` }];
+            const newHistory = [...history, { type: "input", content: `dipanshu@Macbook-Pro:${currentPath.replace("/home/dipanshu", "~")}$ ${input}` }];
 
             const result = handleCommand(input, currentPath, setHistory, setCurrentPath);
 
@@ -71,7 +71,7 @@ const Terminal = () => {
                 ))}
                 <div className="input-line">
                     <span className="prompt">
-                        dipanshu@portfolio-prod-srv-01:{currentPath.replace("/home/dipanshu", "~")}$
+                        dipanshu@Macbook-Pro:{currentPath.replace("/home/dipanshu", "~")}$
                     </span>
                     <input
                         ref={inputRef}
