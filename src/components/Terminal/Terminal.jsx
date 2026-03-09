@@ -6,10 +6,10 @@ const Terminal = () => {
     const [input, setInput] = useState("");
     const [history, setHistory] = useState([
         { type: "output", content: "Last login: " + new Date().toUTCString() + " on ttys001" },
-        { type: "output", content: "System: Portfolio Linux 1.0.4 - Zsh on macOS style shell" },
-        { type: "output", content: 'Type "help" for a list of available commands.' },
+        { type: "output", content: "System: Portfolio OS v1.1.0-LTS (Dipanshu Sengar's CV)" },
+        { type: "output", content: 'Type "cd resume && ls" to view my professional background.' },
     ]);
-    const [currentPath, setCurrentPath] = useState("/home/dipanshu");
+    const [currentPath, setCurrentPath] = useState("/home/guest");
     const [commandHistory, setCommandHistory] = useState([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
 
@@ -28,7 +28,7 @@ const Terminal = () => {
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
             const trimmedInput = input.trim();
-            const newHistory = [...history, { type: "input", content: `dipanshu@Macbook-Pro:${currentPath.replace("/home/dipanshu", "~")}$ ${input}` }];
+            const newHistory = [...history, { type: "input", content: `dipanshu@dipanshu-vps:${currentPath.replace("/home/guest", "~")}$ ${input}` }];
 
             const result = handleCommand(input, currentPath, setHistory, setCurrentPath);
 
@@ -71,7 +71,7 @@ const Terminal = () => {
                 ))}
                 <div className="input-line">
                     <span className="prompt">
-                        dipanshu@Macbook-Pro:{currentPath.replace("/home/dipanshu", "~")}$
+                        dipanshu@dipanshu-vps:{currentPath.replace("/home/guest", "~")}$
                     </span>
                     <input
                         ref={inputRef}

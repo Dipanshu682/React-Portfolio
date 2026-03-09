@@ -9,7 +9,7 @@ export const handleCommand = (commandLine, currentPath, setHistory, setPath) => 
 
     const resolvePath = (path) => {
         if (!path) return currentPath;
-        if (path === "~") return "/home/dipanshu";
+        if (path === "~") return "/home/guest";
         if (path === "/") return "/";
         if (path === "..") {
             if (currentPath === "/") return "/";
@@ -41,7 +41,7 @@ System Information:
   uname -a      Display kernel/system information
   hostname      Display system network name
   whoami        Display current effective user
-  uptime        Display system uptime
+  uptime       Display system uptime
 
 Utilities:
   echo [text]   Display a line of text
@@ -65,7 +65,7 @@ Utilities:
 
         case "cd":
             if (!arg || arg === "~") {
-                setPath("/home/dipanshu");
+                setPath("/home/guest");
                 output = "";
             } else {
                 const targetPath = resolvePath(arg);
@@ -95,15 +95,15 @@ Utilities:
             return { clear: true };
 
         case "whoami":
-            output = "dipanshu";
+            output = "guest";
             break;
 
         case "hostname":
-            output = "portfolio-prod-srv-01";
+            output = "dipanshu-vps";
             break;
 
         case "uname":
-            output = args.includes("-a") ? "Linux portfolio-prod-srv-01 5.15.0-76-generic #83-Ubuntu SMP x86_64 GNU/Linux" : "Linux";
+            output = args.includes("-a") ? "Linux dipanshu-vps 5.15.0-76-generic #83-Ubuntu SMP x86_64 GNU/Linux" : "Linux";
             break;
 
         case "date":
@@ -125,17 +125,17 @@ Utilities:
         case "neofetch":
             output = `
        .---.
-      /     \\  dipanshu@portfolio-prod-srv-01
+      /     \\  dipanshu@dipanshu-vps
       | (O) |  -------------------------
-      \\     /  OS: Portfolio Linux (Ubuntu 22.04 LTS)
-       '---'   Host: Production Backend API
+      \\     /  OS: Portfolio Linux (User: Dipanshu Sengar)
+       '---'   Host: Resume Development Environment
                Kernel: 5.15.0-76-generic
                Uptime: 12 days, 4 hours
-               Shell: portfolio-sh 1.2
+               Shell: resume-sh 2.0
                CPU: Virtualized Core (4) @ 2.4GHz
                Memory: 4096MiB / 8192MiB
                Disk: 45G / 100G (45%)
-               Location: /home/dipanshu
+               Location: /home/guest
       `;
             break;
 
