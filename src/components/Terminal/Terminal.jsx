@@ -125,7 +125,7 @@ const Terminal = () => {
         if (result.sudoRequest) {
             setIsPasswordMode(true);
             setSudoCommand(result.sudoCommand);
-            setHistory([...newHistory, { type: "output", content: `[sudo] password for dipanshu: ` }]);
+            setHistory([...newHistory]);
         } else if (result.nanoRequest) {
             setNanoMode(true);
             setNanoFile(result.file);
