@@ -1,12 +1,16 @@
 :root {
     --bg-color: #1c1c1c;
-    /* macOS Terminal "Pro" background */
     --text-color: #ffffff;
-    /* Clean white text */
     --prompt-color: #32d74b;
-    /* macOS-style vibrant green */
-    --input-color: #32d74b;
+    --input-color: #ffffff;
     --terminal-font: 'SF Mono', Monaco, Menlo, Consolas, 'Courier New', monospace;
+    --heading-color: #ff9f43;
+    --subheading-color: #54a0ff;
+    --bold-color: #feca57;
+    --italic-color: #c8d6e5;
+    --bullet-color: #5f27cd;
+    --link-color: #0abde3;
+    --boot-color: #00ff41;
 }
 
 .terminal-container {
@@ -28,32 +32,46 @@
     flex-grow: 1;
     overflow-y: auto;
     font-size: 14px;
-    /* Standard macOS terminal size */
     line-height: 1.6;
     white-space: pre-wrap;
     z-index: 2;
     letter-spacing: 0.02em;
 }
 
+/* Line styles */
 .line.input {
-    color: var(--prompt-color);
+    display: flex;
     margin-top: 5px;
 }
 
 .line.output {
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
-.input-line {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+.line.boot-line {
+    color: var(--boot-color);
+    font-size: 12px;
+    line-height: 1.3;
 }
 
+/* Command text in history = white */
+.command-text {
+    color: var(--text-color);
+}
+
+/* Prompt = green */
 .prompt {
     color: var(--prompt-color);
     margin-right: 8px;
     font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Current input line */
+.input-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 .input-line input {
@@ -66,6 +84,69 @@
     outline: none;
     caret-color: var(--prompt-color);
     min-width: 100px;
+}
+
+/* Syntax highlighting for cat output */
+.hl-title {
+    color: var(--heading-color);
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.hl-heading {
+    color: var(--heading-color);
+    font-weight: bold;
+}
+
+.hl-subheading {
+    color: var(--subheading-color);
+    font-weight: 600;
+}
+
+.hl-bold {
+    color: var(--bold-color);
+    font-weight: bold;
+}
+
+.hl-italic {
+    color: var(--italic-color);
+    font-style: italic;
+}
+
+.hl-bullet {
+    color: var(--bullet-color);
+    font-weight: bold;
+}
+
+.hl-link {
+    color: var(--link-color);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.hl-link:hover {
+    color: #48dbfb;
+    text-decoration: underline;
+}
+
+/* Mobile hint */
+.mobile-hint {
+    color: #666;
+    font-size: 13px;
+    padding: 10px 0;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
 
 /* Subtle Glassmorphism for full screen */
@@ -90,40 +171,39 @@
     scrollbar-width: none;
 }
 
-@media (max-width: 600px) {
-    .terminal-body {
-        padding: 15px;
-        font-size: 12px;
-    }
-
-    .input-line input {
-        font-size: 12px;
-    }
+/* Boot screen */
+.boot-screen .terminal-body {
+    padding: 15px;
 }
 
 /* Nano Editor Styles */
 .nano-container {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 100vh;
     width: 100%;
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: var(--terminal-font);
-    z-index: 20;
-    position: absolute;
-    top: 0;
-    left: 0;
 }
 
-.nano-header,
-.nano-footer {
+.nano-header {
     background-color: #d3d7cf;
     color: #000;
-    padding: 2px 10px;
+    padding: 4px 12px;
     display: flex;
     justify-content: space-between;
     font-size: 14px;
+    font-weight: bold;
+}
+
+.nano-footer {
+    background-color: #d3d7cf;
+    color: #000;
+    padding: 4px 12px;
+    display: flex;
+    gap: 24px;
+    font-size: 13px;
     font-weight: bold;
 }
 
@@ -139,9 +219,35 @@
     font-size: 14px;
     line-height: 1.6;
     white-space: pre-wrap;
-    caret-color: #7d7d7d;
+    caret-color: var(--prompt-color);
 }
 
 .nano-textarea::selection {
     background-color: #444;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .terminal-body {
+        padding: 12px;
+        font-size: 11px;
+    }
+
+    .input-line input {
+        font-size: 11px;
+    }
+
+    .mobile-hint {
+        display: block;
+    }
+
+    .line.boot-line {
+        font-size: 10px;
+    }
+}
+
+@media (min-width: 601px) {
+    .mobile-hint {
+        display: none;
+    }
 }
