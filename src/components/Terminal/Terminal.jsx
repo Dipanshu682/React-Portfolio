@@ -1,3 +1,4 @@
+import React, { useState, useRef, useEffect } from "react";
 import { vfs as initialVfs } from "./vfs";
 
 const Terminal = () => {
