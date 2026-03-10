@@ -306,7 +306,7 @@ export const handleCommand = (commandLine, currentPath, setHistory, setPath, vfs
             const links = {
                 github: "https://github.com/Dipanshu682",
                 linkedin: "https://www.linkedin.com/in/dipanshu-sengar-188498204/",
-                email: "mailto:dipanshusengar@gmail.com",
+                email: "mailto:dipanshusengar682@gmail.com",
             };
             if (links[target]) {
                 output = `Opening ${target}...`;

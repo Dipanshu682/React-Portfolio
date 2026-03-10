@@ -47,8 +47,8 @@ Commands:
 #!/bin/bash
 echo "--- Contact Information ---"
 echo "Phone: +91-6267308383"
-echo "Email: [Email Displayed in Resume]"
-echo "LinkedIn: linkedin.com/in/dipanshu-sengar"
+echo "Email: dipanshusengar682@gmail.com"
+echo "LinkedIn: https://www.linkedin.com/in/dipanshu-sengar-188498204/"
 echo "GitHub: https://github.com/Dipanshu682"
     `,
     },
@@ -71,7 +71,7 @@ echo "GitHub: https://github.com/Dipanshu682"
 ## Personal Information
 - **Name**: Dipanshu Sengar
 - **Phone**: +91-6267308383
-- **LinkedIn**: https://linkedin.com/in/dipanshu-sengar
+- **LinkedIn**: https://www.linkedin.com/in/dipanshu-sengar-188498204/
 - **GitHub**: https://github.com/Dipanshu682
     `,
     },
