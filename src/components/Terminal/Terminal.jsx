@@ -19,6 +19,11 @@ const Terminal = () => {
     const [isPasswordMode, setIsPasswordMode] = useState(false);
     const [sudoCommand, setSudoCommand] = useState("");
 
+    // Nano Editor States
+    const [nanoMode, setNanoMode] = useState(false);
+    const [nanoFile, setNanoFile] = useState("");
+    const [nanoContent, setNanoContent] = useState("");
+
     const inputRef = useRef(null);
     const terminalEndRef = useRef(null);
 
@@ -65,6 +70,11 @@ const Terminal = () => {
                 setIsPasswordMode(true);
                 setSudoCommand(result.sudoCommand);
                 setHistory([...newHistory, { type: "output", content: `[sudo] password for dipanshu: ` }]);
+            } else if (result.nanoRequest) {
+                setNanoMode(true);
+                setNanoFile(result.file);
+                setNanoContent(result.content);
+                setHistory([...newHistory]);
             } else if (result.clear) {
                 setHistory([]);
             } else {
@@ -94,32 +104,81 @@ const Terminal = () => {
         }
     };
 
+    const handleNanoKeyDown = (e) => {
+        if (e.ctrlKey && e.key.toLowerCase() === 'x') {
+            e.preventDefault();
+
+            // Save file
+            const newVfs = { ...vfs };
+            const pathParts = nanoFile.split("/").filter(Boolean);
+            const fileName = pathParts.pop();
+            const parentPath = "/" + pathParts.join("/");
+
+            if (!newVfs[nanoFile]) {
+                newVfs[nanoFile] = { type: "file", content: "" };
+                if (newVfs[parentPath]) {
+                    newVfs[parentPath].children.push(fileName);
+                }
+            }
+
+            newVfs[nanoFile].content = nanoContent;
+            setVfs(newVfs);
+
+            setNanoMode(false);
+            const absoluteLines = nanoContent.split('\n').length;
+            setHistory(prev => [...prev, { type: "output", content: `[Wrote ${absoluteLines} lines to ${nanoFile}]` }]);
+
+            // Re-focus terminal input after exiting
+            setTimeout(() => inputRef.current?.focus(), 10);
+        }
+    };
+
     return (
-        <div className="terminal-container" onClick={() => inputRef.current?.focus()}>
-            <div className="terminal-body scrollbar-hidden">
-                {history.map((line, index) => (
-                    <div key={index} className={`line ${line.type}`}>
-                        {line.content}
+        <div className="terminal-container" onClick={() => !nanoMode && inputRef.current?.focus()}>
+            {nanoMode ? (
+                <div className="nano-container">
+                    <div className="nano-header">
+                        <span>GNU nano 7.2</span>
+                        <span>File: {nanoFile}</span>
+                        <span></span>
                     </div>
-                ))}
-                <div className="input-line">
-                    {!isPasswordMode && (
-                        <span className="prompt">
-                            dipanshu@dipanshu-vps:{currentPath.replace("/home/guest", "~")}$
-                        </span>
-                    )}
-                    <input
-                        ref={inputRef}
-                        type={isPasswordMode ? "password" : "text"}
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        autoComplete="off"
+                    <textarea
+                        className="nano-textarea"
+                        value={nanoContent}
+                        onChange={(e) => setNanoContent(e.target.value)}
+                        onKeyDown={handleNanoKeyDown}
                         autoFocus
                     />
+                    <div className="nano-footer">
+                        <span>^X Exit (Auto-Saves)</span>
+                    </div>
                 </div>
-                <div ref={terminalEndRef} />
-            </div>
+            ) : (
+                <div className="terminal-body scrollbar-hidden">
+                    {history.map((line, index) => (
+                        <div key={index} className={`line ${line.type}`}>
+                            {line.content}
+                        </div>
+                    ))}
+                    <div className="input-line">
+                        {!isPasswordMode && (
+                            <span className="prompt">
+                                dipanshu@dipanshu-vps:{currentPath.replace("/home/guest", "~")}$
+                            </span>
+                        )}
+                        <input
+                            ref={inputRef}
+                            type={isPasswordMode ? "password" : "text"}
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            autoComplete="off"
+                            autoFocus
+                        />
+                    </div>
+                    <div ref={terminalEndRef} />
+                </div>
+            )}
             <div className="terminal-overlay"></div>
         </div>
     );

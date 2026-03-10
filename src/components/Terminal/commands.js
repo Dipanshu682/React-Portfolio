@@ -151,27 +151,14 @@ System Help Interface:
                 const editPath = resolvePath(arg);
                 if (!hasWritePermission(editPath)) {
                     output = `nano: cannot open '${arg}': Permission denied`;
+                } else if (vfs[editPath] && vfs[editPath].type === "dir") {
+                    output = `nano: '${arg}' is a directory`;
                 } else {
-                    const content = args.slice(2).join(" ");
-                    if (args.length > 2) {
-                        const newVfs = { ...vfs };
-                        if (!newVfs[editPath]) {
-                            newVfs[editPath] = { type: "file", content: "" };
-
-                            const pathParts = editPath.split("/").filter(Boolean);
-                            const fileName = pathParts.pop();
-                            const parentPath = "/" + pathParts.join("/");
-
-                            if (newVfs[parentPath]) {
-                                newVfs[parentPath].children.push(fileName);
-                            }
-                        }
-                        newVfs[editPath].content = content;
-                        setVfs(newVfs);
-                        output = `File '${arg}' saved.`;
-                    } else {
-                        output = `Usage: nano [file] [content]\n(Simple editor: providing content in command for demo)`;
+                    let content = "";
+                    if (vfs[editPath] && vfs[editPath].type === "file") {
+                        content = vfs[editPath].content;
                     }
+                    return { nanoRequest: true, file: editPath, content: content };
                 }
             }
             break;
