@@ -36,7 +36,7 @@
 }
 
 .line.input {
-    color: #a0a0a0;
+    color: var(--text-color);
     margin-top: 5px;
 }
 
@@ -117,7 +117,8 @@
     left: 0;
 }
 
-.nano-header, .nano-footer {
+.nano-header,
+.nano-footer {
     background-color: #d3d7cf;
     color: #000;
     padding: 2px 10px;

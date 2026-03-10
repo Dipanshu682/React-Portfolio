@@ -20,10 +20,8 @@ export const handleCommand = (commandLine, currentPath, setHistory, setPath, vfs
         return cleanPath.replace(/\/+/g, "/");
     };
 
-    const hasWritePermission = (path) => {
-        if (isRoot) return true;
-        // Allow writing in home directory and its subdirectories
-        return path.startsWith("/home/guest");
+    const hasWritePermission = () => {
+        return isRoot;
     };
 
     switch (cmd) {
@@ -72,8 +70,8 @@ System Help Interface:
                 output = "touch: missing file operand";
             } else {
                 const newFilePath = resolvePath(arg);
-                if (!hasWritePermission(newFilePath)) {
-                    output = `touch: cannot touch '${arg}': Permission denied`;
+                if (!hasWritePermission()) {
+                    output = `touch: cannot touch '${arg}': Permission denied. Use: sudo touch ${arg}`;
                 } else if (vfs[newFilePath]) {
                     output = ""; // Update timestamp (noop in demo)
                 } else {
@@ -97,8 +95,8 @@ System Help Interface:
                 output = "mkdir: missing operand";
             } else {
                 const newDirPath = resolvePath(arg);
-                if (!hasWritePermission(newDirPath)) {
-                    output = `mkdir: cannot create directory '${arg}': Permission denied`;
+                if (!hasWritePermission()) {
+                    output = `mkdir: cannot create directory '${arg}': Permission denied. Use: sudo mkdir ${arg}`;
                 } else if (vfs[newDirPath]) {
                     output = `mkdir: cannot create directory '${arg}': File exists`;
                 } else {
@@ -122,8 +120,8 @@ System Help Interface:
                 output = "rm: missing operand";
             } else {
                 const rmPath = resolvePath(arg);
-                if (!hasWritePermission(rmPath)) {
-                    output = `rm: cannot remove '${arg}': Permission denied`;
+                if (!hasWritePermission()) {
+                    output = `rm: cannot remove '${arg}': Permission denied. Use: sudo rm ${arg}`;
                 } else if (!vfs[rmPath]) {
                     output = `rm: cannot remove '${arg}': No such file or directory`;
                 } else {
@@ -149,8 +147,8 @@ System Help Interface:
                 output = "nano: missing file operand";
             } else {
                 const editPath = resolvePath(arg);
-                if (!hasWritePermission(editPath)) {
-                    output = `nano: cannot open '${arg}': Permission denied`;
+                if (!hasWritePermission()) {
+                    output = `nano: permission denied. Use: sudo nano ${arg}`;
                 } else if (vfs[editPath] && vfs[editPath].type === "dir") {
                     output = `nano: '${arg}' is a directory`;
                 } else {

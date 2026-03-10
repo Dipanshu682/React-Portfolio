@@ -48,7 +48,11 @@ const Terminal = () => {
                 // But let's make it look real: "dipanshu"
                 if (password === "dipanshu" || password === "admin") {
                     const result = handleCommand(sudoCommand, currentPath, setHistory, setCurrentPath, vfs, setVfs, true);
-                    if (result.clear) {
+                    if (result.nanoRequest) {
+                        setNanoMode(true);
+                        setNanoFile(result.file);
+                        setNanoContent(result.content);
+                    } else if (result.clear) {
                         setHistory([]);
                     } else {
                         setHistory(prev => [...prev, { type: "output", content: result.output }]);
