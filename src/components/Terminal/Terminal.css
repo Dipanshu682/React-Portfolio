@@ -5,7 +5,7 @@
     /* Clean white text */
     --prompt-color: #32d74b;
     /* macOS-style vibrant green */
-    --input-color: #ffffff;
+    --input-color: #32d74b;
     --terminal-font: 'SF Mono', Monaco, Menlo, Consolas, 'Courier New', monospace;
 }
 
@@ -36,7 +36,7 @@
 }
 
 .line.input {
-    color: var(--text-color);
+    color: var(--prompt-color);
     margin-top: 5px;
 }
 
@@ -64,8 +64,7 @@
     font-size: 14px;
     flex-grow: 1;
     outline: none;
-    caret-color: #7d7d7d;
-    /* Standard block/line cursor color */
+    caret-color: var(--prompt-color);
     min-width: 100px;
 }
 

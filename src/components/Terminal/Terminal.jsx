@@ -79,6 +79,9 @@ const Terminal = () => {
                 setNanoFile(result.file);
                 setNanoContent(result.content);
                 setHistory([...newHistory]);
+            } else if (result.historyRequest) {
+                const histOutput = commandHistory.slice().reverse().map((c, i) => `  ${i + 1}  ${c}`).join("\n");
+                setHistory([...newHistory, { type: "output", content: histOutput || "(no history)" }]);
             } else if (result.clear) {
                 setHistory([]);
             } else {
@@ -104,6 +107,20 @@ const Terminal = () => {
             } else if (historyIndex === 0) {
                 setHistoryIndex(-1);
                 setInput("");
+            }
+        } else if (e.key === "Tab") {
+            e.preventDefault();
+            const parts = input.trim().split(/\s+/);
+            const partial = parts[parts.length - 1];
+            if (partial) {
+                const dir = vfs[currentPath];
+                if (dir && dir.children) {
+                    const match = dir.children.find(c => c.startsWith(partial));
+                    if (match) {
+                        parts[parts.length - 1] = match;
+                        setInput(parts.join(" "));
+                    }
+                }
             }
         }
     };

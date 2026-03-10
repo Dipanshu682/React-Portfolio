@@ -1,4 +1,20 @@
 export const handleCommand = (commandLine, currentPath, setHistory, setPath, vfs, setVfs, isRoot = false) => {
+    // Handle chained commands with &&
+    if (commandLine.includes("&&")) {
+        const commands = commandLine.split("&&").map(c => c.trim());
+        let lastResult = { output: "" };
+        let combinedOutput = [];
+        for (const cmd of commands) {
+            const result = handleCommand(cmd, currentPath, setHistory, setPath, vfs, setVfs, isRoot);
+            if (result.clear) return result;
+            if (result.sudoRequest) return result;
+            if (result.nanoRequest) return result;
+            if (result.output) combinedOutput.push(result.output);
+            lastResult = result;
+        }
+        return { output: combinedOutput.join("\n") };
+    }
+
     const args = commandLine.trim().split(/\s+/);
     const cmd = args[0].toLowerCase();
     const arg = args[1];
@@ -28,9 +44,11 @@ export const handleCommand = (commandLine, currentPath, setHistory, setPath, vfs
         case "help":
             output = `
 System Help Interface:
-  Standard: ls, cd, cat, pwd, clear, history, whoami, hostname, uname, uptime, date
-  Files: touch [file], rm [file], mkdir [dir], nano [file]
-  System: sudo [command]
+  Navigation: ls, cd, cat, pwd, clear, history, whoami, hostname, uname, uptime, date
+  Search:     grep [pattern] [file]
+  Files:      touch [file], rm [file], mkdir [dir], nano [file]  (requires sudo)
+  System:     sudo [command], neofetch, echo
+  Tip:        Use Tab for autocomplete, Up/Down for command history
       `;
             break;
 
@@ -185,7 +203,24 @@ System Help Interface:
             break;
         case "exit": output = "Connection closed by remote host."; break;
         case "": output = ""; break;
-        default: output = `${cmd}: command not found. List available commands with 'help'.`;
+        case "history":
+            return { historyRequest: true };
+        case "grep":
+            if (args.length < 3) {
+                output = "Usage: grep [pattern] [file]";
+            } else {
+                const pattern = args[1];
+                const grepFile = resolvePath(args[2]);
+                if (vfs[grepFile] && vfs[grepFile].type === "file") {
+                    const lines = vfs[grepFile].content.split("\n");
+                    const matches = lines.filter(l => l.toLowerCase().includes(pattern.toLowerCase()));
+                    output = matches.length > 0 ? matches.join("\n") : `grep: no matches for '${pattern}'`;
+                } else {
+                    output = `grep: ${args[2]}: No such file or directory`;
+                }
+            }
+            break;
+        default: output = `${cmd}: command not found. Type 'help' for available commands.`;
     }
 
     return { output };
