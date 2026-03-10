@@ -1,8 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
-import "./Terminal.css";
-import { handleCommand } from "./commands";
+import { vfs as initialVfs } from "./vfs";
 
 const Terminal = () => {
+    const [vfs, setVfs] = useState(initialVfs);
     const [input, setInput] = useState("");
     const [history, setHistory] = useState([
         { type: "output", content: "Last login: " + new Date().toUTCString() + " on ttys001" },
@@ -12,6 +11,10 @@ const Terminal = () => {
     const [currentPath, setCurrentPath] = useState("/home/guest");
     const [commandHistory, setCommandHistory] = useState([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
+
+    // Sudo & Mode States
+    const [isPasswordMode, setIsPasswordMode] = useState(false);
+    const [sudoCommand, setSudoCommand] = useState("");
 
     const inputRef = useRef(null);
     const terminalEndRef = useRef(null);
@@ -27,12 +30,39 @@ const Terminal = () => {
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
+            if (isPasswordMode) {
+                // Handle Sudo Password
+                const password = input.trim();
+                setIsPasswordMode(false);
+                setInput("");
+
+                // For this portfolio, we'll use a simple password like "admin" or empty for demo
+                // But let's make it look real: "dipanshu"
+                if (password === "dipanshu" || password === "admin") {
+                    const result = handleCommand(sudoCommand, currentPath, setHistory, setCurrentPath, vfs, setVfs, true);
+                    if (result.clear) {
+                        setHistory([]);
+                    } else {
+                        setHistory(prev => [...prev, { type: "output", content: result.output }]);
+                    }
+                } else {
+                    setHistory(prev => [...prev, { type: "output", content: "sudo: 1 incorrect password attempt" }]);
+                }
+                setSudoCommand("");
+                return;
+            }
+
             const trimmedInput = input.trim();
-            const newHistory = [...history, { type: "input", content: `dipanshu@dipanshu-vps:${currentPath.replace("/home/guest", "~")}$ ${input}` }];
+            const prompt = `dipanshu@dipanshu-vps:${currentPath.replace("/home/guest", "~")}$ `;
+            const newHistory = [...history, { type: "input", content: `${prompt}${input}` }];
 
-            const result = handleCommand(input, currentPath, setHistory, setCurrentPath);
+            const result = handleCommand(input, currentPath, setHistory, setCurrentPath, vfs, setVfs, false);
 
-            if (result.clear) {
+            if (result.sudoRequest) {
+                setIsPasswordMode(true);
+                setSudoCommand(result.sudoCommand);
+                setHistory([...newHistory, { type: "output", content: `[sudo] password for dipanshu: ` }]);
+            } else if (result.clear) {
                 setHistory([]);
             } else {
                 setHistory([...newHistory, { type: "output", content: result.output }]);
@@ -70,12 +100,14 @@ const Terminal = () => {
                     </div>
                 ))}
                 <div className="input-line">
-                    <span className="prompt">
-                        dipanshu@dipanshu-vps:{currentPath.replace("/home/guest", "~")}$
-                    </span>
+                    {!isPasswordMode && (
+                        <span className="prompt">
+                            dipanshu@dipanshu-vps:{currentPath.replace("/home/guest", "~")}$
+                        </span>
+                    )}
                     <input
                         ref={inputRef}
-                        type="text"
+                        type={isPasswordMode ? "password" : "text"}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}

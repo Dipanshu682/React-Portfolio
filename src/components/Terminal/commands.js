@@ -1,6 +1,4 @@
-import { vfs } from './vfs';
-
-export const handleCommand = (commandLine, currentPath, setHistory, setPath) => {
+export const handleCommand = (commandLine, currentPath, setHistory, setPath, vfs, setVfs, isRoot = false) => {
     const args = commandLine.trim().split(/\s+/);
     const cmd = args[0].toLowerCase();
     const arg = args[1];
@@ -22,56 +20,38 @@ export const handleCommand = (commandLine, currentPath, setHistory, setPath) => 
         return cleanPath.replace(/\/+/g, "/");
     };
 
+    const hasWritePermission = (path) => {
+        if (isRoot) return true;
+        // Allow writing in home directory and its subdirectories
+        return path.startsWith("/home/guest");
+    };
+
     switch (cmd) {
         case "help":
             output = `
 System Help Interface:
-  Usage: [command] [options] [arguments]
-
-Standard Commands:
-  ls [path]     List directory contents
-  cd [path]     Change the current directory
-  cat [file]    Display file contents
-  pwd           Print the current working directory
-  clear         Clear the terminal screen
-  history       Display command history
-
-System Information:
-  neofetch      Display system/hardware information
-  uname -a      Display kernel/system information
-  hostname      Display system network name
-  whoami        Display current effective user
-  uptime       Display system uptime
-
-Utilities:
-  echo [text]   Display a line of text
-  date          Display current date and time
-  sudo [cmd]    Execute as superuser (restricted)
-  exit          Terminate terminal session
+  Standard: ls, cd, cat, pwd, clear, history, whoami, hostname, uname, uptime, date
+  Files: touch [file], rm [file], mkdir [dir], nano [file]
+  System: sudo [command]
       `;
             break;
 
         case "ls":
-            const isRecursive = args.includes("-R");
-            const targetArg = args.find(a => a !== "ls" && a !== "-R");
-            const lsPath = resolvePath(targetArg);
-
-            if (vfs[lsPath] && vfs[lsPath].type === "dir") {
-                output = vfs[lsPath].children.join("  ");
+            const targetLs = resolvePath(arg);
+            if (vfs[targetLs] && vfs[targetLs].type === "dir") {
+                output = vfs[targetLs].children.join("  ");
             } else {
-                output = `ls: cannot access '${targetArg || lsPath}': No such file or directory`;
+                output = `ls: cannot access '${arg || targetLs}': No such file or directory`;
             }
             break;
 
         case "cd":
             if (!arg || arg === "~") {
                 setPath("/home/guest");
-                output = "";
             } else {
                 const targetPath = resolvePath(arg);
                 if (vfs[targetPath] && vfs[targetPath].type === "dir") {
                     setPath(targetPath);
-                    output = "";
                 } else {
                     output = `cd: ${arg}: No such file or directory`;
                 }
@@ -79,80 +59,148 @@ Utilities:
             break;
 
         case "cat":
-            if (!arg) {
-                output = "cat: missing file operand";
+            const catPath = resolvePath(arg);
+            if (vfs[catPath] && vfs[catPath].type === "file") {
+                output = vfs[catPath].content;
             } else {
-                const filePath = resolvePath(arg);
-                if (vfs[filePath] && vfs[filePath].type === "file") {
-                    output = vfs[filePath].content;
+                output = `cat: ${arg}: No such file or directory`;
+            }
+            break;
+
+        case "touch":
+            if (!arg) {
+                output = "touch: missing file operand";
+            } else {
+                const newFilePath = resolvePath(arg);
+                if (!hasWritePermission(newFilePath)) {
+                    output = `touch: cannot touch '${arg}': Permission denied`;
+                } else if (vfs[newFilePath]) {
+                    output = ""; // Update timestamp (noop in demo)
                 } else {
-                    output = `cat: ${arg}: No such file or directory`;
+                    const newVfs = { ...vfs };
+                    newVfs[newFilePath] = { type: "file", content: "" };
+
+                    const pathParts = newFilePath.split("/").filter(Boolean);
+                    const fileName = pathParts.pop();
+                    const parentPath = "/" + pathParts.join("/");
+
+                    if (newVfs[parentPath]) {
+                        newVfs[parentPath].children.push(fileName);
+                    }
+                    setVfs(newVfs);
                 }
             }
             break;
 
-        case "clear":
-            return { clear: true };
+        case "mkdir":
+            if (!arg) {
+                output = "mkdir: missing operand";
+            } else {
+                const newDirPath = resolvePath(arg);
+                if (!hasWritePermission(newDirPath)) {
+                    output = `mkdir: cannot create directory '${arg}': Permission denied`;
+                } else if (vfs[newDirPath]) {
+                    output = `mkdir: cannot create directory '${arg}': File exists`;
+                } else {
+                    const newVfs = { ...vfs };
+                    newVfs[newDirPath] = { type: "dir", children: [] };
 
-        case "whoami":
-            output = "guest";
+                    const pathParts = newDirPath.split("/").filter(Boolean);
+                    const dirName = pathParts.pop();
+                    const parentPath = "/" + pathParts.join("/");
+
+                    if (newVfs[parentPath]) {
+                        newVfs[parentPath].children.push(dirName);
+                    }
+                    setVfs(newVfs);
+                }
+            }
             break;
 
-        case "hostname":
-            output = "dipanshu-vps";
+        case "rm":
+            if (!arg) {
+                output = "rm: missing operand";
+            } else {
+                const rmPath = resolvePath(arg);
+                if (!hasWritePermission(rmPath)) {
+                    output = `rm: cannot remove '${arg}': Permission denied`;
+                } else if (!vfs[rmPath]) {
+                    output = `rm: cannot remove '${arg}': No such file or directory`;
+                } else {
+                    const newVfs = { ...vfs };
+                    delete newVfs[rmPath];
+
+                    // Correctly update parent directory children
+                    const pathParts = rmPath.split("/").filter(Boolean);
+                    const fileName = pathParts.pop();
+                    const parentPath = "/" + pathParts.join("/");
+
+                    if (newVfs[parentPath]) {
+                        newVfs[parentPath].children = newVfs[parentPath].children.filter(c => c !== fileName);
+                    }
+                    setVfs(newVfs);
+                }
+            }
             break;
 
-        case "uname":
-            output = args.includes("-a") ? "Linux dipanshu-vps 5.15.0-76-generic #83-Ubuntu SMP x86_64 GNU/Linux" : "Linux";
-            break;
+        case "nano":
+        case "edit":
+            if (!arg) {
+                output = "nano: missing file operand";
+            } else {
+                const editPath = resolvePath(arg);
+                if (!hasWritePermission(editPath)) {
+                    output = `nano: cannot open '${arg}': Permission denied`;
+                } else {
+                    const content = args.slice(2).join(" ");
+                    if (args.length > 2) {
+                        const newVfs = { ...vfs };
+                        if (!newVfs[editPath]) {
+                            newVfs[editPath] = { type: "file", content: "" };
 
-        case "date":
-            output = new Date().toUTCString();
-            break;
+                            const pathParts = editPath.split("/").filter(Boolean);
+                            const fileName = pathParts.pop();
+                            const parentPath = "/" + pathParts.join("/");
 
-        case "pwd":
-            output = currentPath;
-            break;
-
-        case "echo":
-            output = args.slice(1).join(" ");
-            break;
-
-        case "uptime":
-            output = "23:42:05 up 12 days, 4:18,  1 user,  load average: 0.04, 0.05, 0.00";
-            break;
-
-        case "neofetch":
-            output = `
-       .---.
-      /     \\  dipanshu@dipanshu-vps
-      | (O) |  -------------------------
-      \\     /  OS: Portfolio Linux (User: Dipanshu Sengar)
-       '---'   Host: Resume Development Environment
-               Kernel: 5.15.0-76-generic
-               Uptime: 12 days, 4 hours
-               Shell: resume-sh 2.0
-               CPU: Virtualized Core (4) @ 2.4GHz
-               Memory: 4096MiB / 8192MiB
-               Disk: 45G / 100G (45%)
-               Location: /home/guest
-      `;
+                            if (newVfs[parentPath]) {
+                                newVfs[parentPath].children.push(fileName);
+                            }
+                        }
+                        newVfs[editPath].content = content;
+                        setVfs(newVfs);
+                        output = `File '${arg}' saved.`;
+                    } else {
+                        output = `Usage: nano [file] [content]\n(Simple editor: providing content in command for demo)`;
+                    }
+                }
+            }
             break;
 
         case "sudo":
-            output = "[sudo] password for dipanshu: \nSorry, user dipanshu is not allowed to execute 'sudo' on this host.";
+            if (args.length < 2) {
+                output = "usage: sudo <command>";
+            } else if (isRoot) {
+                // Already authenticated, execute the command
+                return handleCommand(args.slice(1).join(" "), currentPath, setHistory, setPath, vfs, setVfs, true);
+            } else {
+                return { sudoRequest: true, sudoCommand: args.slice(1).join(" ") };
+            }
             break;
 
-        case "exit":
-            output = "Connection closed by remote host.";
+        case "clear": return { clear: true };
+        case "whoami": output = isRoot ? "root" : "guest"; break;
+        case "hostname": output = "dipanshu-vps"; break;
+        case "uname": output = args.includes("-a") ? "Linux dipanshu-vps 5.15.0-76-generic #83-Ubuntu SMP x86_64 GNU/Linux" : "Linux"; break;
+        case "date": output = new Date().toUTCString(); break;
+        case "pwd": output = currentPath; break;
+        case "echo": output = args.slice(1).join(" "); break;
+        case "uptime": output = "23:42:05 up 12 days, 4:18,  1 user,  load average: 0.04, 0.05, 0.00"; break;
+        case "neofetch":
+            output = `       .---.\n      /     \\  dipanshu@dipanshu-vps\n      | (O) |  -------------------------\n      \\     /  OS: Portfolio Linux (User: Dipanshu Sengar)\n       '---'   Host: Resume Development Environment\n               Kernel: 5.15.0-76-generic\n               Uptime: 12 days, 4 hours\n               Shell: resume-sh 2.0\n               CPU: Virtualized Core (4) @ 2.4GHz\n               Memory: 4096MiB / 8192MiB\n               Disk: 45G / 100G (45%)\n               Location: /home/guest`;
             break;
-
-        case "":
-            output = "";
-            break;
-
-        default:
-            output = `${cmd}: command not found. List available commands with 'help'.`;
+        case "exit": output = "Connection closed by remote host."; break;
+        case "": output = ""; break;
+        default: output = `${cmd}: command not found. List available commands with 'help'.`;
     }
 
     return { output };
