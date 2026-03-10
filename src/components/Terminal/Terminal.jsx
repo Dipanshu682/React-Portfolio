@@ -279,9 +279,7 @@ const Terminal = () => {
             .replace(/\*\*(.+?)\*\*/g, '<span class="hl-bold">$1</span>')
             .replace(/\*(.+?)\*/g, '<span class="hl-italic">$1</span>')
             .replace(/^(\s*-\s)/gm, '<span class="hl-bullet">$1</span>')
-            .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="hl-link">$1</a>')
-            .replace(/(linkedin\.com\/[^\s<]+)/g, '<a href="https://$1" target="_blank" rel="noopener noreferrer" class="hl-link">$1</a>')
-            .replace(/(github\.com\/[^\s<]+)/g, '<a href="https://$1" target="_blank" rel="noopener noreferrer" class="hl-link">$1</a>');
+            .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="hl-link">$1</a>');
 
         return (
             <div className="line output" dangerouslySetInnerHTML={{ __html: htmlContent }} />

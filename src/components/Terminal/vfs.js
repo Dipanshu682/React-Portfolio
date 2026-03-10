@@ -71,8 +71,8 @@ echo "GitHub: https://github.com/Dipanshu682"
 ## Personal Information
 - **Name**: Dipanshu Sengar
 - **Phone**: +91-6267308383
-- **LinkedIn**: dipanshu-sengar
-- **GitHub**: Dipanshu682
+- **LinkedIn**: https://linkedin.com/in/dipanshu-sengar
+- **GitHub**: https://github.com/Dipanshu682
     `,
     },
     "/home/guest/resume/summary.md": {
