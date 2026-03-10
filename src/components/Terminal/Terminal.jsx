@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import "./Terminal.css";
+import { handleCommand } from "./commands";
 import { vfs as initialVfs } from "./vfs";
 
 const Terminal = () => {
