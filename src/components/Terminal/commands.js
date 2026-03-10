@@ -305,7 +305,7 @@ export const handleCommand = (commandLine, currentPath, setHistory, setPath, vfs
             const target = (arg || "").toLowerCase();
             const links = {
                 github: "https://github.com/Dipanshu682",
-                linkedin: "https://linkedin.com/in/dipanshu-sengar",
+                linkedin: "https://www.linkedin.com/in/dipanshu-sengar-188498204/",
                 email: "mailto:dipanshusengar@gmail.com",
             };
             if (links[target]) {
